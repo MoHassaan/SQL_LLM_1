@@ -89,7 +89,7 @@ Now generate the SQL query for this question:
 
 # Streamlit App UI
 st.set_page_config(page_title="LLM SQL Assistant")
-st.title("Gemini SQL Assistant (Naresh IT DB)")
+st.title("Gemini SQL Assistant")
 st.write("Ask questions in English. Get SQL queries and results instantly!")
 
 # User input
@@ -115,13 +115,21 @@ if st.button("Run"):
             st.error(f"Error: {result[0][1]}")
         else:
             st.subheader("Query Result:")
-            df = pd.DataFrame(result, columns=columns)
-            st.dataframe(df, use_container_width=True)
 
-            # Explanation
-            with st.expander("Gemini Explains the SQL"):
-                explanation = explain_sql_query(sql_query)
-                st.write(explanation)
+            # Validate result and column shape
+            if len(result) > 0 and len(result[0]) != len(columns):
+                st.error(f"Shape mismatch: result has {len(result[0])} columns but {len(columns)} column names were provided.")
+                st.write("Raw result:", result)
+                st.write("Detected columns:", columns)
+            else:
+                df = pd.DataFrame(result, columns=columns)
+                st.dataframe(df, use_container_width=True)
+
+                # Explanation
+                with st.expander("Gemini Explains the SQL"):
+                    explanation = explain_sql_query(sql_query)
+                    st.write(explanation)
+
 
 
 
